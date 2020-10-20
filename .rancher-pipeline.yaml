@@ -4,7 +4,7 @@ stages:
       event: tag
     steps:
       - publishImageConfig: # 推送镜像
-          dockerfilePath: ./Dockerfile # dockerfile 在源代码中的路径
+          dockerfilePath: ./build/Dockerfile # dockerfile 在源代码中的路径
           buildContext: . # docker 构建的上下文路径
           tag: rancher-project/jaeger-operator:${CICD_GIT_TAG} # 构建完成后的tag
           pushRemote: true # 推送到远程仓库
