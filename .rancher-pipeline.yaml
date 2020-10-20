@@ -6,8 +6,10 @@ stages:
       - publishImageConfig: # 推送镜像
           dockerfilePath: ./Dockerfile # dockerfile 在源代码中的路径
           buildContext: . # docker 构建的上下文路径
-          tag: rancher-project/jaeger-operator:1.20.1 # 构建完成后的tag
+          tag: rancher-project/jaeger-operator:${CICD_GIT_TAG} # 构建完成后的tag
           pushRemote: true # 推送到远程仓库
           registry: registry.pek01.in.zhihu.com # 仓库地址
+        env:
+          PLUGIN_BUILD_ARGS_FROM_ENV: CICD_GIT_TAG
 timeout: 60
 notification: {}
