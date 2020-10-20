@@ -11,5 +11,6 @@ stages:
           registry: registry.pek01.in.zhihu.com # 仓库地址
         env:
           PLUGIN_BUILD_ARGS_FROM_ENV: CICD_GIT_TAG
+          GOPROXY: https://goproxy.in.zhihu.com
 timeout: 60
 notification: {}
