@@ -93,8 +93,12 @@ func (a *Agent) Get() *appsv1.DaemonSet {
 	sort.Strings(args)
 
 	hostNetwork := false
+	dnsPolicy := a.jaeger.Spec.Agent.DNSPolicy
 	if a.jaeger.Spec.Agent.HostNetwork != nil {
 		hostNetwork = *a.jaeger.Spec.Agent.HostNetwork
+		if dnsPolicy == "" {
+			dnsPolicy = corev1.DNSClusterFirstWithHostNet
+		}
 	}
 
 	return &appsv1.DaemonSet{
@@ -181,6 +185,7 @@ func (a *Agent) Get() *appsv1.DaemonSet {
 						Resources:    commonSpec.Resources,
 						VolumeMounts: commonSpec.VolumeMounts,
 					}},
+					DNSPolicy:          dnsPolicy,
 					HostNetwork:        hostNetwork,
 					Volumes:            commonSpec.Volumes,
 					Affinity:           commonSpec.Affinity,

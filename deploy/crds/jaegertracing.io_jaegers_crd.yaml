@@ -580,6 +580,8 @@ spec:
                   type: object
                 config:
                   type: object
+                dnsPolicy:
+                  type: string
                 hostNetwork:
                   type: boolean
                 image:
@@ -7526,6 +7528,7 @@ spec:
                             type: string
                         type: object
                       type: array
+                      x-kubernetes-list-type: atomic
                   type: object
                 esIndexCleaner:
                   properties:
