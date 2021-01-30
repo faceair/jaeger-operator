@@ -28,6 +28,8 @@ import (
 )
 
 var ingressEnabled = true
+var trueVar = true
+var falseVar = true
 
 type SidecarTestSuite struct {
 	suite.Suite
@@ -70,8 +72,8 @@ func (suite *SidecarTestSuite) AfterTest(suiteName, testName string) {
 func (suite *SidecarTestSuite) TestSidecar() {
 	cleanupOptions := &framework.CleanupOptions{TestContext: ctx, Timeout: timeout, RetryInterval: retryInterval}
 
-	firstJaegerInstanceName := "agent-as-sidecar"
-	firstJaegerInstance := createJaegerAgentAsSidecarInstance(firstJaegerInstanceName, namespace)
+	firstJaegerInstanceName := "agent-as-sidecar-with-hostnetowk"
+	firstJaegerInstance := createJaegerAgentAsSidecarInstance(firstJaegerInstanceName, namespace, &trueVar)
 	defer undeployJaegerInstance(firstJaegerInstance)
 
 	verifyAllInOneImage(firstJaegerInstanceName, namespace, specifyOtelImages)
@@ -104,7 +106,7 @@ func (suite *SidecarTestSuite) TestSidecar() {
 
 	/* Testing other instance */
 	secondJaegerInstanceName := "agent-as-sidecar2"
-	secondJaegerInstance := createJaegerAgentAsSidecarInstance(secondJaegerInstanceName, namespace)
+	secondJaegerInstance := createJaegerAgentAsSidecarInstance(secondJaegerInstanceName, namespace, &falseVar)
 	defer undeployJaegerInstance(secondJaegerInstance)
 
 	persisted := &appsv1.Deployment{}
@@ -113,7 +115,7 @@ func (suite *SidecarTestSuite) TestSidecar() {
 		Namespace: namespace,
 	}, persisted)
 	require.NoError(t, err, "Error getting jaeger instance")
-	require.Equal(t, "agent-as-sidecar", persisted.Labels[inject.Label])
+	require.Equal(t, firstJaegerInstanceName, persisted.Labels[inject.Label])
 
 	err = fw.Client.Delete(goctx.TODO(), firstJaegerInstance)
 	require.NoError(t, err, "Error deleting instance")
@@ -196,7 +198,7 @@ func getVertxDefinition(deploymentName string, annotations map[string]string) *a
 	return dep
 }
 
-func createJaegerAgentAsSidecarInstance(name, namespace string) *v1.Jaeger {
+func createJaegerAgentAsSidecarInstance(name, namespace string, hostNetwork *bool) *v1.Jaeger {
 	cleanupOptions := &framework.CleanupOptions{TestContext: ctx, Timeout: timeout, RetryInterval: retryInterval}
 
 	j := &v1.Jaeger{
@@ -216,6 +218,7 @@ func createJaegerAgentAsSidecarInstance(name, namespace string) *v1.Jaeger {
 			},
 			AllInOne: v1.JaegerAllInOneSpec{},
 			Agent: v1.JaegerAgentSpec{
+				HostNetwork: hostNetwork,
 				Options: v1.NewOptions(map[string]interface{}{
 					"log-level": "debug",
 				}),
